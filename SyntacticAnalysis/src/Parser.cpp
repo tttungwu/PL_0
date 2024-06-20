@@ -56,6 +56,11 @@ void Parser::enter(SymbolType symbolType, int *pdx, int lev)
     else symbolTable[this->tx].level = lev;
 }
 
+void Parser::parse(std::vector<Token> tokens)
+{
+
+}
+
 void Parser::emit(InstructionType f, int l, int a)
 {
     this->code[this->cx].f = f;
@@ -69,34 +74,57 @@ void Parser::block(int lev)
     int dx = 4, tx0 = this->symbolTable.size();
     this->symbolTable[tx0].addr = this->cx;
     emit(InstructionType::jmp, 0, 0);
-    if (this->cur_token.getType() == TokenType::constSym)
-    {
-        getNextToken();
-        constdeclaration(lev, &dx);
-        while (this->cur_token.getType() == TokenType::commaSym)
+
+    do {
+        if (this->cur_token.getType() == TokenType::constSym)
         {
             getNextToken();
             constdeclaration(lev, &dx);
+            while (this->cur_token.getType() == TokenType::commaSym)
+            {
+                getNextToken();
+                constdeclaration(lev, &dx);
+            }
+            if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
+            else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
         }
-        if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
-        else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
-    }
-    else if (this->cur_token.getType() == TokenType::varSym)
-    {
-        getNextToken();
-        vardeclaration(lev, &dx);
-        while (this->cur_token.getType() == TokenType::commaSym)
+        else if (this->cur_token.getType() == TokenType::varSym)
         {
             getNextToken();
             vardeclaration(lev, &dx);
+            while (this->cur_token.getType() == TokenType::commaSym)
+            {
+                getNextToken();
+                vardeclaration(lev, &dx);
+            }
+            if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
+            else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
         }
-        if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
-        else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
-    }
-    else if (this->cur_token.getType() == TokenType::plusSym)
-    {
+        else if (this->cur_token.getType() == TokenType::procSym)
+        {
+            getNextToken();
 
-    }
+            if (this->cur_token.getType() == TokenType::identSym)
+            {
+                enter(SymbolType::PROC, &dx, lev);
+                getNextToken();
+            }
+            else Error::printErrors(ErrorType::SyntaxError, "identifier missing.");
+            if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
+            else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
+
+            block(lev + 1);
+            if(this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
+            else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
+        }
+    } while(this->cur_token.getType() == TokenType::constSym || this->cur_token.getType() == TokenType::varSym
+        || this->cur_token.getType() == TokenType::procSym);
+
+    code[symbolTable[tx0].addr].l = this->cx;
+    symbolTable[tx0].addr = this->cx;
+    emit(InstructionType::inc, 0, dx);
+    statement(lev);
+    emit(InstructionType::opr, 0, 0);
 }
 
 void Parser::constdeclaration(int lev, int *pdx)

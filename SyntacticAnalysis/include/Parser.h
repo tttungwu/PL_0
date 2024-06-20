@@ -22,6 +22,8 @@ private:
     TokenType cur_type;
     std::string cur_ident, cur_val;
 
+    Parser() {}
+
     void parseInit();
     void getNextToken();
     int position(Token, int);
@@ -37,7 +39,7 @@ private:
     void term(int);
     void factor(int);
 public:
-    Parser(std::vector<Token> tokens) : tokens(tokens){}
+    void parse(std::vector<Token> tokens);
 };
 
 
