@@ -5,6 +5,7 @@
 #include "../include/Token.h"
 
 Token::Token(TokenType t, std::string s) : type(t), val(s) {}
+Token::Token() {}
 
 std::string Token::getValue()
 {

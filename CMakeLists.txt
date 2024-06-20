@@ -12,4 +12,10 @@ add_executable(PL_0 main.cpp
         LexicalAnalysis/include/Lexer.h
         LexicalAnalysis/src/Lexer.cpp
         Common/include/Error.h
-        Common/src/Error.cpp)
+        Common/src/Error.cpp
+        SyntacticAnalysis/include/Symbol.h
+        SyntacticAnalysis/include/Symbol.cpp
+        SyntacticAnalysis/include/Instruction.h
+        SyntacticAnalysis/include/Instruction.cpp
+        SyntacticAnalysis/include/Parser.h
+        SyntacticAnalysis/src/Parser.cpp)

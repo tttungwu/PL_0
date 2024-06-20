@@ -14,7 +14,9 @@ private:
     TokenType type;     // 类型
     std::string val;    // 值
 public:
+    Token();
     Token(TokenType, std::string);
+
     std::string getValue();
     TokenType getType();
     void print();
