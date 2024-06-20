@@ -3,4 +3,13 @@ project(PL_0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(PL_0 main.cpp)
+add_executable(PL_0 main.cpp
+        Common/include/Token.h
+        Common/src/Token.cpp
+        LexicalAnalysis/include/Statechart.h
+        LexicalAnalysis/src/Statechart.cpp
+        Common/src/TokenType.cpp
+        LexicalAnalysis/include/Lexer.h
+        LexicalAnalysis/src/Lexer.cpp
+        Common/Error.h
+        Common/Error.cpp)
