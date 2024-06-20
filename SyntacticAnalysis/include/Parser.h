@@ -28,6 +28,9 @@ private:
     void enter(SymbolType, int *, int);
     void emit(InstructionType, int, int);
 
+    void block(int);
+    void constdeclaration(int, int *);
+    void vardeclaration(int, int *);
     void statement(int);
     void condition(int);
     void expression(int);

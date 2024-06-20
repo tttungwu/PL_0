@@ -64,6 +64,70 @@ void Parser::emit(InstructionType f, int l, int a)
     ++ this->cx;
 }
 
+void Parser::block(int lev)
+{
+    int dx = 4, tx0 = this->symbolTable.size();
+    this->symbolTable[tx0].addr = this->cx;
+    emit(InstructionType::jmp, 0, 0);
+    if (this->cur_token.getType() == TokenType::constSym)
+    {
+        getNextToken();
+        constdeclaration(lev, &dx);
+        while (this->cur_token.getType() == TokenType::commaSym)
+        {
+            getNextToken();
+            constdeclaration(lev, &dx);
+        }
+        if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
+        else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
+    }
+    else if (this->cur_token.getType() == TokenType::varSym)
+    {
+        getNextToken();
+        vardeclaration(lev, &dx);
+        while (this->cur_token.getType() == TokenType::commaSym)
+        {
+            getNextToken();
+            vardeclaration(lev, &dx);
+        }
+        if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
+        else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
+    }
+    else if (this->cur_token.getType() == TokenType::plusSym)
+    {
+
+    }
+}
+
+void Parser::constdeclaration(int lev, int *pdx)
+{
+    if (this->cur_token.getType() == TokenType::identSym)
+    {
+        getNextToken();
+        if ((this->cur_token.getType() == TokenType::eqSym) || (this->cur_token.getType() == TokenType::becomesSym))
+        {
+            if (this->cur_token.getType() == TokenType::becomesSym)
+                Error::printErrors(ErrorType::SyntaxError, ":= is expected");
+            getNextToken();
+            if (this->cur_token.getType() == TokenType::numberSym) {
+                enter(SymbolType::CONST, pdx, lev);
+                getNextToken();
+            }
+        }
+    }
+    else Error::printErrors(ErrorType::SyntaxError, "const is expected");
+}
+
+void Parser::vardeclaration(int lev, int *pdx)
+{
+    if (this->cur_token.getType() == TokenType::identSym)
+    {
+        enter(SymbolType::VAR, pdx, lev);
+        getNextToken();
+    }
+    else Error::printErrors(ErrorType::SyntaxError, "var is expected");
+}
+
 void Parser::statement(int lev)
 {
     if (this->cur_token.getType() == TokenType::identSym)
