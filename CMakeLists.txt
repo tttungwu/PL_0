@@ -11,5 +11,5 @@ add_executable(PL_0 main.cpp
         Common/src/TokenType.cpp
         LexicalAnalysis/include/Lexer.h
         LexicalAnalysis/src/Lexer.cpp
-        Common/Error.h
-        Common/Error.cpp)
+        Common/include/Error.h
+        Common/src/Error.cpp)

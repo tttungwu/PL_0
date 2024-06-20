@@ -11,6 +11,7 @@
 #include <deque>
 #include <vector>
 #include "Statechart.h"
+#include "../../Common/include/Error.h"
 #include "../../Common/include/Token.h"
 
 

@@ -117,8 +117,13 @@ Statechart::Statechart()
     this->diagram[TokenType::procSym][std::make_pair(0, 'p')] = 1;
     this->diagram[TokenType::procSym][std::make_pair(1, 'r')] = 2;
     this->diagram[TokenType::procSym][std::make_pair(2, 'o')] = 3;
-    this->diagram[TokenType::procSym][std::make_pair(2, 'c')] = 4;
-    this->finalState[TokenType::procSym] = 4;
+    this->diagram[TokenType::procSym][std::make_pair(3, 'c')] = 4;
+    this->diagram[TokenType::procSym][std::make_pair(4, 'e')] = 5;
+    this->diagram[TokenType::procSym][std::make_pair(5, 'd')] = 6;
+    this->diagram[TokenType::procSym][std::make_pair(6, 'u')] = 7;
+    this->diagram[TokenType::procSym][std::make_pair(7, 'r')] = 8;
+    this->diagram[TokenType::procSym][std::make_pair(8, 'e')] = 9;
+    this->finalState[TokenType::procSym] = 9;
 
     this->diagram[TokenType::writeSym][std::make_pair(0, 'w')] = 1;
     this->diagram[TokenType::writeSym][std::make_pair(1, 'r')] = 2;
