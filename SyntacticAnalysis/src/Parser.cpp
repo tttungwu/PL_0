@@ -56,17 +56,52 @@ void Parser::enter(SymbolType symbolType, int *pdx, int lev)
     else symbolTable[this->tx].level = lev;
 }
 
-void Parser::parse(std::vector<Token> tokens)
-{
-
-}
-
 void Parser::emit(InstructionType f, int l, int a)
 {
     this->code[this->cx].f = f;
     this->code[this->cx].l = l;
     this->code[this->cx].a = a;
     ++ this->cx;
+}
+
+void Parser::output()
+{
+    static std::unordered_map<InstructionType, std::string> map = {
+            {InstructionType::opr, "OPR"},
+            {InstructionType::jmp, "JMP"},
+            {InstructionType::sto, "STO"},
+            {InstructionType::jpc, "JPC"},
+            {InstructionType::lit, "LIT"},
+            {InstructionType::sio, "SIO"},
+            {InstructionType::cal, "CAL"},
+            {InstructionType::inc, "INC"},
+            {InstructionType::lod, "LOD"}
+    };
+
+    std::string filename = "out.pcode";
+    std::ofstream outfile(filename);
+
+    for (int i = 0; i < cx; ++ i)
+    {
+        std::cout << map[code[i].f] << ' ' << code[i].l << ' ' << code[i].a << std::endl;
+        outfile << map[code[i].f] << ' ' << code[i].l << ' ' << code[i].a << std::endl;
+    }
+}
+
+void Parser::parse(std::vector<Token> tokens)
+{
+    this->tokens = tokens;
+    this->parseInit();
+    this->program();
+    this->output();
+}
+
+void Parser::program()
+{
+    getNextToken();
+    block(0);
+    if (this->cur_token.getType() != TokenType::periodSym)
+        Error::printErrors(ErrorType::SyntaxError, "period missing.");
 }
 
 void Parser::block(int lev)
