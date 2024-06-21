@@ -11,7 +11,7 @@
 
 enum TokenType {
     plusSym, minusSym, mulSym, slashSym,
-    eqSym, neqSym, lesSym, leqSym, gtrSym, geqSym,
+    eqSym, neqSym, leqSym, lesSym, geqSym, gtrSym,
     lparentSym, rparentSym, commaSym, semicolonSym,
     periodSym, becomesSym, oddSym, beginSym, endSym, ifSym,
     thenSym, whileSym, doSym, callSym, constSym, varSym,

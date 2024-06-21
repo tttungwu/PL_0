@@ -82,7 +82,7 @@ Statechart::Statechart()
     this->diagram[TokenType::thenSym][std::make_pair(0, 't')] = 1;
     this->diagram[TokenType::thenSym][std::make_pair(1, 'h')] = 2;
     this->diagram[TokenType::thenSym][std::make_pair(2, 'e')] = 3;
-    this->diagram[TokenType::thenSym][std::make_pair(2, 'n')] = 4;
+    this->diagram[TokenType::thenSym][std::make_pair(3, 'n')] = 4;
     this->finalState[TokenType::thenSym] = 4;
 
     this->diagram[TokenType::whileSym][std::make_pair(0, 'w')] = 1;
@@ -99,7 +99,7 @@ Statechart::Statechart()
     this->diagram[TokenType::callSym][std::make_pair(0, 'c')] = 1;
     this->diagram[TokenType::callSym][std::make_pair(1, 'a')] = 2;
     this->diagram[TokenType::callSym][std::make_pair(2, 'l')] = 3;
-    this->diagram[TokenType::callSym][std::make_pair(2, 'l')] = 4;
+    this->diagram[TokenType::callSym][std::make_pair(3, 'l')] = 4;
     this->finalState[TokenType::callSym] = 4;
 
     this->diagram[TokenType::constSym][std::make_pair(0, 'c')] = 1;
@@ -135,13 +135,13 @@ Statechart::Statechart()
     this->diagram[TokenType::readSym][std::make_pair(0, 'r')] = 1;
     this->diagram[TokenType::readSym][std::make_pair(1, 'e')] = 2;
     this->diagram[TokenType::readSym][std::make_pair(2, 'a')] = 3;
-    this->diagram[TokenType::readSym][std::make_pair(2, 'd')] = 4;
+    this->diagram[TokenType::readSym][std::make_pair(3, 'd')] = 4;
     this->finalState[TokenType::readSym] = 4;
 
     this->diagram[TokenType::elseSym][std::make_pair(0, 'e')] = 1;
     this->diagram[TokenType::elseSym][std::make_pair(1, 'l')] = 2;
     this->diagram[TokenType::elseSym][std::make_pair(2, 's')] = 3;
-    this->diagram[TokenType::elseSym][std::make_pair(2, 'e')] = 4;
+    this->diagram[TokenType::elseSym][std::make_pair(3, 'e')] = 4;
     this->finalState[TokenType::elseSym] = 4;
 
     for (char c = 'a'; c <= 'z'; ++ c)

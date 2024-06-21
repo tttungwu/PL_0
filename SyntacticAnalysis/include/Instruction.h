@@ -14,6 +14,8 @@ public:
     InstructionType f;  // 代码指令
     int l;              //引用层与声明层的层次差
     int a;              //根据f的不同而不同
+
+    Instruction() {};
 };
 
 

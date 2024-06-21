@@ -23,6 +23,8 @@ public:
     std::string val;    // 值
     int level; 		    // 定义层
     int addr; 		    // 地址
+
+    Symbol() {};
 };
 
 

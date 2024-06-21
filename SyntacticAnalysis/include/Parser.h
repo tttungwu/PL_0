@@ -17,7 +17,7 @@
 
 class Parser {
 private:
-    int cx, tx, cur_index;
+    int cx, cur_index;
     Token cur_token;
     std::vector<Symbol> symbolTable;
     std::vector<Instruction> code;
@@ -28,19 +28,19 @@ private:
 
     void parseInit();
     void getNextToken();
-    int position(Token, int);
-    void enter(SymbolType, int *, int);
+    int position(Token, int, int *);
+    void enter(SymbolType, int *, int, int *);
     void emit(InstructionType, int, int);
 
     void program();
-    void block(int);
-    void constdeclaration(int, int *);
-    void vardeclaration(int, int *);
-    void statement(int);
-    void condition(int);
-    void expression(int);
-    void term(int);
-    void factor(int);
+    void block(int, int);
+    void constdeclaration(int, int *, int *);
+    void vardeclaration(int, int *, int *);
+    void statement(int, int *);
+    void condition(int, int *);
+    void expression(int, int *);
+    void term(int, int *);
+    void factor(int, int *);
 
     void output();
 public:

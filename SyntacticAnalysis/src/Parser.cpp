@@ -6,9 +6,11 @@
 
 void Parser::parseInit()
 {
-    this->cx = this->tx = this->cur_index = 0;
+    this->cx = this->cur_index = 0;
     this->symbolTable.clear();
     this->code.clear();
+    this->symbolTable.resize(1000);
+    this->code.resize(1000);
 }
 
 void Parser::getNextToken()
@@ -19,9 +21,9 @@ void Parser::getNextToken()
     else if (this->cur_type == TokenType::numberSym) this->cur_val = this->cur_token.getValue();
 }
 
-int Parser::position(Token token, int lev)
+int Parser::position(Token token, int lev, int *ptx)
 {
-    int s = this->tx;
+    int s = *ptx;
     int res = 0, count = 0;
     int diff, preDiff;
     while (s)
@@ -41,19 +43,19 @@ int Parser::position(Token token, int lev)
     return res;
 }
 
-void Parser::enter(SymbolType symbolType, int *pdx, int lev)
+void Parser::enter(SymbolType symbolType, int *pdx, int lev, int *ptx)
 {
-    ++ this->tx;
-    symbolTable[this->tx].ident = this->cur_ident;
-    symbolTable[this->tx].type = symbolType;
-    if (symbolType == SymbolType::CONST) this->symbolTable[this->tx].val = this->cur_val;
+    (*ptx) ++;
+    symbolTable[*ptx].ident = this->cur_ident;
+    symbolTable[*ptx].type = symbolType;
+    if (symbolType == SymbolType::CONST) this->symbolTable[*ptx].val = this->cur_val;
     else if (symbolType == SymbolType::VAR)
     {
-        symbolTable[this->tx].level = lev;
-        symbolTable[this->tx].addr = *pdx;
+        symbolTable[*ptx].level = lev;
+        symbolTable[*ptx].addr = *pdx;
         (*pdx) ++;
     }
-    else symbolTable[this->tx].level = lev;
+    else symbolTable[*ptx].level = lev;
 }
 
 void Parser::emit(InstructionType f, int l, int a)
@@ -99,14 +101,14 @@ void Parser::parse(std::vector<Token> tokens)
 void Parser::program()
 {
     getNextToken();
-    block(0);
+    block(0, 0);
     if (this->cur_token.getType() != TokenType::periodSym)
         Error::printErrors(ErrorType::SyntaxError, "period missing.");
 }
 
-void Parser::block(int lev)
+void Parser::block(int lev, int tx)
 {
-    int dx = 4, tx0 = this->symbolTable.size();
+    int dx = 4, tx0 = tx;
     this->symbolTable[tx0].addr = this->cx;
     emit(InstructionType::jmp, 0, 0);
 
@@ -114,11 +116,11 @@ void Parser::block(int lev)
         if (this->cur_token.getType() == TokenType::constSym)
         {
             getNextToken();
-            constdeclaration(lev, &dx);
+            constdeclaration(lev, &dx, &tx);
             while (this->cur_token.getType() == TokenType::commaSym)
             {
                 getNextToken();
-                constdeclaration(lev, &dx);
+                constdeclaration(lev, &dx, &tx);
             }
             if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
             else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
@@ -126,11 +128,11 @@ void Parser::block(int lev)
         else if (this->cur_token.getType() == TokenType::varSym)
         {
             getNextToken();
-            vardeclaration(lev, &dx);
+            vardeclaration(lev, &dx, &tx);
             while (this->cur_token.getType() == TokenType::commaSym)
             {
                 getNextToken();
-                vardeclaration(lev, &dx);
+                vardeclaration(lev, &dx, &tx);
             }
             if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
             else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
@@ -141,15 +143,15 @@ void Parser::block(int lev)
 
             if (this->cur_token.getType() == TokenType::identSym)
             {
-                enter(SymbolType::PROC, &dx, lev);
+                enter(SymbolType::PROC, &dx, lev, &tx);
                 getNextToken();
             }
             else Error::printErrors(ErrorType::SyntaxError, "identifier missing.");
             if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
             else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
 
-            block(lev + 1);
-            if(this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
+            block(lev + 1, tx);
+            if (this->cur_token.getType() == TokenType::semicolonSym) getNextToken();
             else Error::printErrors(ErrorType::SyntaxError, "comma missing.");
         }
     } while(this->cur_token.getType() == TokenType::constSym || this->cur_token.getType() == TokenType::varSym
@@ -158,11 +160,11 @@ void Parser::block(int lev)
     code[symbolTable[tx0].addr].l = this->cx;
     symbolTable[tx0].addr = this->cx;
     emit(InstructionType::inc, 0, dx);
-    statement(lev);
+    statement(lev, &tx);
     emit(InstructionType::opr, 0, 0);
 }
 
-void Parser::constdeclaration(int lev, int *pdx)
+void Parser::constdeclaration(int lev, int *pdx, int *ptx)
 {
     if (this->cur_token.getType() == TokenType::identSym)
     {
@@ -173,7 +175,7 @@ void Parser::constdeclaration(int lev, int *pdx)
                 Error::printErrors(ErrorType::SyntaxError, ":= is expected");
             getNextToken();
             if (this->cur_token.getType() == TokenType::numberSym) {
-                enter(SymbolType::CONST, pdx, lev);
+                enter(SymbolType::CONST, pdx, lev, ptx);
                 getNextToken();
             }
         }
@@ -181,28 +183,28 @@ void Parser::constdeclaration(int lev, int *pdx)
     else Error::printErrors(ErrorType::SyntaxError, "const is expected");
 }
 
-void Parser::vardeclaration(int lev, int *pdx)
+void Parser::vardeclaration(int lev, int *pdx, int *ptx)
 {
     if (this->cur_token.getType() == TokenType::identSym)
     {
-        enter(SymbolType::VAR, pdx, lev);
+        enter(SymbolType::VAR, pdx, lev, ptx);
         getNextToken();
     }
     else Error::printErrors(ErrorType::SyntaxError, "var is expected");
 }
 
-void Parser::statement(int lev)
+void Parser::statement(int lev, int *ptx)
 {
     if (this->cur_token.getType() == TokenType::identSym)
     {
-        int pos = position(this->cur_token, lev);
+        int pos = position(this->cur_token, lev, ptx);
         if (pos == 0) Error::printErrors(ErrorType::SyntaxError, "No such variable");
         else if (symbolTable[pos].type != SymbolType::VAR)
             Error::printErrors(ErrorType::SyntaxError, "var is expected");
         getNextToken();
         if (this->cur_token.getType() == TokenType::becomesSym) getNextToken();
         else Error::printErrors(ErrorType::SyntaxError, ":= is expected");
-        expression(lev);
+        expression(lev, ptx);
         emit(InstructionType::sto, lev - symbolTable[pos].level, symbolTable[pos].addr);
     }
     else if (this->cur_token.getType() == TokenType::callSym)
@@ -212,7 +214,7 @@ void Parser::statement(int lev)
             Error::printErrors(ErrorType::SyntaxError, "call must be followed by an identifier");
         else
         {
-            int pos = position(this->cur_token, lev);
+            int pos = position(this->cur_token, lev, ptx);
             if (pos == 0) Error::printErrors(ErrorType::SyntaxError, "No such call");
             if (symbolTable[pos].type != SymbolType::PROC)
                 Error::printErrors(ErrorType::SyntaxError, "identifier should be a proc");
@@ -225,33 +227,33 @@ void Parser::statement(int lev)
         int backup_cx;
 
         getNextToken();
-        condition(lev);
+        condition(lev, ptx);
         if (this->cur_token.getType() != TokenType::thenSym)
             Error::printErrors(ErrorType::SyntaxError, "'then' is expected");
         else getNextToken();
 
         backup_cx = this->cx;
         emit(InstructionType::jpc, 0, 0);
-        statement(lev);
+        statement(lev, ptx);
         if (this->cur_token.getType() == TokenType::elseSym)
         {
             getNextToken();
             this->code[backup_cx].l = this->cx + 1;
             backup_cx = cx;
             emit(InstructionType::jmp, 0, 0);
-            statement(lev);
+            statement(lev, ptx);
         }
         code[backup_cx].l = cx;
     }
     else if (this->cur_token.getType() == TokenType::beginSym)
     {
         getNextToken();
-        statement(lev);
+        statement(lev, ptx);
 
         while (this->cur_token.getType() == TokenType::semicolonSym)
         {
             getNextToken();
-            statement(lev);
+            statement(lev, ptx);
         }
 
         if (this->cur_token.getType() == TokenType::endSym) getNextToken();
@@ -262,26 +264,26 @@ void Parser::statement(int lev)
         int backup_cx1, backup_cx2;
         backup_cx1 = this->cx;
         getNextToken();
-        condition(lev);
+        condition(lev, ptx);
         backup_cx2 = this->cx;
         emit(InstructionType::jpc, 0, 0);
         if (this->cur_token.getType() == TokenType::doSym) getNextToken();
         else Error::printErrors(ErrorType::SyntaxError, "do is expected");
-        statement(lev);
+        statement(lev, ptx);
         emit(InstructionType::jmp, 0, backup_cx1);
         code[backup_cx2].l = this->cx;
     }
     else if (this->cur_token.getType() == TokenType::writeSym)
     {
         getNextToken();
-        expression(lev);
+        expression(lev, ptx);
         emit(InstructionType::sio, 0, 1);
     }
     else if (this->cur_token.getType() == TokenType::readSym)
     {
         getNextToken();
         emit(InstructionType::sio, 0, 2);
-        int pos = position(this->cur_token, lev);
+        int pos = position(this->cur_token, lev, ptx);
         if (pos == 0) Error::printErrors(ErrorType::SyntaxError, "No such variable");
         if (symbolTable[pos].type != SymbolType::VAR)
             Error::printErrors(ErrorType::SyntaxError, "No such variable");
@@ -290,81 +292,87 @@ void Parser::statement(int lev)
     }
 }
 
-void Parser::condition(int lev)
+void Parser::condition(int lev, int *ptx)
 {
     if (this->cur_token.getType() == TokenType::oddSym)
     {
         getNextToken();
-        expression(lev);
+        expression(lev, ptx);
         emit(InstructionType::opr, 0, 6);
     }
     else
     {
-        expression(lev);
+        expression(lev, ptx);
         TokenType op = this->cur_token.getType();
         if (op != TokenType::eqSym && op != TokenType::neqSym && op != TokenType::lesSym && op != TokenType::leqSym
                && op != TokenType::gtrSym && op != TokenType::geqSym)
             Error::printErrors(ErrorType::SyntaxError, "Relation operator expected");
         getNextToken();
-        expression(lev);
+        expression(lev, ptx);
         switch(op)
         {
             case TokenType::eqSym:
                 emit(InstructionType::opr, 0, 8);
+                break;
             case TokenType::neqSym:
                 emit(InstructionType::opr, 0, 9);
+                break;
             case TokenType::lesSym:
                 emit(InstructionType::opr, 0, 10);
+                break;
             case TokenType::leqSym:
                 emit(InstructionType::opr, 0, 11);
+                break;
             case TokenType::gtrSym:
                 emit(InstructionType::opr, 0, 12);
+                break;
             case TokenType::geqSym:
                 emit(InstructionType::opr, 0, 13);
+                break;
         }
     }
 }
 
-void Parser::expression(int lev)
+void Parser::expression(int lev, int *ptx)
 {
     TokenType op = this->cur_token.getType();
     if (op == TokenType::plusSym || op == TokenType::minusSym)
     {
         getNextToken();
-        term(lev);
+        term(lev, ptx);
         if (op == TokenType::minusSym) emit(InstructionType::opr, 0, 1);
     }
-    else term(lev);
+    else term(lev, ptx);
 
     while (this->cur_token.getType() == TokenType::plusSym || this->cur_token.getType() == TokenType::minusSym)
     {
         op = this->cur_token.getType();
         getNextToken();
-        term(lev);
+        term(lev, ptx);
         if (op == TokenType::plusSym) emit(InstructionType::opr, 0, 2);
         else emit(InstructionType::opr, 0, 3);
     }
 }
 
-void Parser::term(int lev)
+void Parser::term(int lev, int *ptx)
 {
-    factor(lev);
+    factor(lev, ptx);
     while (this->cur_token.getType() == TokenType::mulSym || this->cur_token.getType() == TokenType::slashSym)
     {
         TokenType op = this->cur_token.getType();
         getNextToken();
-        factor(lev);
+        factor(lev, ptx);
         if (op == TokenType::mulSym) emit(InstructionType::opr, 0, 4);
         else emit(InstructionType::opr, 0, 5);
     }
 }
 
-void Parser::factor(int lev)
+void Parser::factor(int lev, int *ptx)
 {
     TokenType tokenType = this->cur_token.getType();
     if (tokenType == TokenType::identSym)
     {
-        int pos = position(this->cur_token, lev);
+        int pos = position(this->cur_token, lev, ptx);
         if (pos == 0) Error::printErrors(ErrorType::SemanticError, "No such variable");
         const Symbol &symbol = symbolTable[pos];
         if (symbol.type == SymbolType::CONST)
@@ -382,9 +390,9 @@ void Parser::factor(int lev)
     else if (tokenType == TokenType::lparentSym)
     {
         getNextToken();
-        expression(lev);
+        expression(lev, ptx);
         if (this->cur_token.getType() == TokenType::rparentSym) getNextToken();
         else Error::printErrors(ErrorType::SyntaxError, "Right parenthesis missing.");
     }
-    else Error::printErrors(ErrorType::SyntaxError, "ungrammatical");
+//    else Error::printErrors(ErrorType::SyntaxError, "ungrammatical");
 }
