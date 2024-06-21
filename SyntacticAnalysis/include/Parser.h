@@ -44,7 +44,7 @@ private:
 
     void output();
 public:
-    Parser() {}
+    Parser() {};
 
     void parse(std::vector<Token> tokens);
 };
