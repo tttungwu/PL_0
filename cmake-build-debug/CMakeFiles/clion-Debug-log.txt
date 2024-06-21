@@ -1,4 +1,16 @@
-/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" -S /Users/tungwu/me/Material/undergraduate/编译技术/PL_0 -B /Users/tungwu/me/Material/undergraduate/编译技术/PL_0/cmake-build-debug
--- Configuring done (0.0s)
+C:\develop\JetBrains\CLion\bin\cmake\win\x64\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" -S C:\Users\Pomelo\Desktop\PL_0 -B C:\Users\Pomelo\Desktop\PL_0\cmake-build-debug
+-- The C compiler identification is GNU 13.1.0
+-- The CXX compiler identification is GNU 13.1.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/develop/JetBrains/CLion/bin/mingw/bin/gcc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/develop/JetBrains/CLion/bin/mingw/bin/g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Configuring done (3.8s)
 -- Generating done (0.0s)
--- Build files have been written to: /Users/tungwu/me/Material/undergraduate/编译技术/PL_0/cmake-build-debug
+-- Build files have been written to: C:/Users/Pomelo/Desktop/PL_0/cmake-build-debug
